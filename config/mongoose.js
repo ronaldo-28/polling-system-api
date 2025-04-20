@@ -14,10 +14,13 @@ const mongoose = require("mongoose");
 // The second argument is an options object:
 //   - `useNewUrlParser: true`: Tells the MongoDB driver to use its new URL parser. (Recommended, though may become default/deprecated later).
 //   - `useUnifiedTopology: true`: Tells the MongoDB driver to use the new Server Discovery and Monitoring engine. (Recommended, though may become default/deprecated later).
-mongoose.connect("mongodb://127.0.0.1:27017/PollingSys", {
-  useNewUrlParser: true, // Use the new URL string parser
-  useUnifiedTopology: true, // Use the unified topology engine
-});
+mongoose.connect(
+  "mongodb+srv://ronaldo:ronaldo28@cluster0.xxbuq7q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+  {
+    useNewUrlParser: true, // Use the new URL string parser
+    useUnifiedTopology: true, // Use the unified topology engine
+  }
+);
 
 // Get the default Mongoose connection object.
 // This object represents the connection to the MongoDB database established above.
