@@ -1,3 +1,4 @@
+require("dotenv").config(); // Load environment variables *first*
 // Require the express module, which is a minimal and flexible Node.js web application framework.
 const express = require("express");
 // Create a new instance of the express application. This 'app' object will be used to configure the server.

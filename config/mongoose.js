@@ -1,50 +1,52 @@
-// Import the Mongoose library, which provides a straightforward, schema-based solution
-// to model application data for MongoDB. It includes built-in type casting, validation,
-// query building, business logic hooks, and more, out of the box.
+// config/mongoose.js
+
+// Import the Mongoose library
 const mongoose = require("mongoose");
 
-// Establish a connection to the MongoDB database.
-// `mongoose.connect()` is used to connect to a running MongoDB instance.
-// The first argument is the MongoDB connection string (URI).
-// "mongodb://127.0.0.1:27017/PollingSys" specifies:
-//   - protocol: `mongodb`
-//   - host: `127.0.0.1` (localhost)
-//   - port: `27017` (default MongoDB port)
-//   - database name: `PollingSys`
-// The second argument is an options object:
-//   - `useNewUrlParser: true`: Tells the MongoDB driver to use its new URL parser. (Recommended, though may become default/deprecated later).
-//   - `useUnifiedTopology: true`: Tells the MongoDB driver to use the new Server Discovery and Monitoring engine. (Recommended, though may become default/deprecated later).
-mongoose.connect(
-  "mongodb+srv://ronaldo:ronaldo28@cluster0.xxbuq7q.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
-  {
-    useNewUrlParser: true, // Use the new URL string parser
-    useUnifiedTopology: true, // Use the unified topology engine
-  }
-);
+// Load environment variables from .env file *only* in development/testing
+// In production, environment variables are typically set directly on the server.
+// You might choose to load dotenv configuration in your main app file (index.js) instead,
+// which is often preferred to ensure variables are loaded before anything else.
+// See alternative approach below if you load dotenv in index.js
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config(); // Load .env file variables
+}
+
+// Retrieve the MongoDB connection string from environment variables
+const dbURI = process.env.MONGODB_URI;
+
+// Check if the environment variable is set
+if (!dbURI) {
+  console.error("Error: MONGODB_URI environment variable is not set.");
+  console.error(
+    "Please ensure you have a .env file with MONGODB_URI defined or that the variable is set in your deployment environment."
+  );
+  process.exit(1); // Exit if the database URI is missing, as the app cannot run
+}
+
+// Establish a connection to the MongoDB database using the URI from the environment variable.
+mongoose.connect(dbURI, {
+  useNewUrlParser: true, // Use the new URL string parser
+  useUnifiedTopology: true, // Use the unified topology engine
+  // Consider adding these for future compatibility and suppressing warnings:
+  // useCreateIndex: true,    // Deprecated, but might be needed for older Mongoose/MongoDB versions
+  // useFindAndModify: false, // Use native findOneAndUpdate() instead
+});
 
 // Get the default Mongoose connection object.
-// This object represents the connection to the MongoDB database established above.
-// It emits events like 'error' and 'open' that can be listened to.
 const db = mongoose.connection;
 
 // Set up an event listener for the 'error' event on the database connection.
-// If the connection encounters an error after the initial connection was established,
-// this listener will trigger the provided callback function.
-// The callback logs the error message to the console for debugging purposes.
 db.on("error", (error) => {
   console.error("MongoDB connection error:", error);
+  // Consider adding more robust error handling or application shutdown logic here
 });
 
 // Set up a one-time event listener for the 'open' event on the database connection.
-// This event is emitted when Mongoose successfully connects to the MongoDB server.
-// The `once` method ensures the callback function is executed only the first time the event occurs.
-// The callback logs a confirmation message to the console indicating a successful connection.
 db.once("open", () => {
-  console.log("Successfully connected to the MongoDB database: PollingSys");
+  console.log(`Successfully connected to the MongoDB database.`);
+  // Optionally log which database you connected to (extracted from URI if needed, but often implicit)
 });
 
 // Export the database connection object (`db`).
-// This allows other modules within the application (like models or the main server file)
-// to import and use this connection object, for instance, to interact with the database
-// or simply to ensure the connection is established before proceeding.
 module.exports = db;
